@@ -6,29 +6,30 @@ using System.Net.Http;
 using System.Web;
 using System.Web.Http;
 using WebApiSample.Models;
+using WebApiSample.Services;
 
 namespace WebApiSample.Controllers
 {
     [RoutePrefix("api/products")]
     public class ProductsController : ApiController
     {
-        public static readonly IProductRepository ProductRepository = new ProductRepository();
+        private readonly IProductService _productService;
 
-        //Want a link to a tutorial on RESTful WebAPI 2.2: 
-        //http://www.asp.net/web-api/overview/web-api-routing-and-actions/create-a-rest-api-with-attribute-routing
+        public ProductsController(IProductService productService)
+        {
+            _productService = productService;
+        }
 
-        //Also can reach actions similar to this approach without WebApiConfig changes and RouteAttribute:
-        //http://localhost:49487/api/Products?action=GetAllProducts
-
-        //For StructureMap incase using a real DB and a real DataLayer
-        //Install-Package StructureMap.WebApi2
-
-        /*GET   api/products
-                api/products?id=1
+        /*GET   
+         * Also can reach actions similar to this approach without WebApiConfig changes and RouteAttribute:
+         * http://localhost:49487/api/Products?action=GetAllProducts
+         * 
                 api/products?category=Sports 
                 api/products?departmentId=1         
                 api/products?category=Sports&departmentId=2
+                api/products?id=1&category=Sports&departmentId=2
         */
+
         [HttpGet]
         [Route("")]
         public IHttpActionResult RootRoute(int? id = null, string category = null, int? departmentId = null)
@@ -37,24 +38,24 @@ namespace WebApiSample.Controllers
 
             if (id != null)
             {
-                var productFound = ProductRepository.Get(Convert.ToInt32(id));
+                var productFound = _productService.GetById(Convert.ToInt32(id));
                 products.Add(productFound);
             }
 
             if (category != null)
             {
-                products.AddRange(ProductRepository.GetAll().Where(product =>
+                products.AddRange(_productService.GetAll().Where(product =>
                 string.Equals(product.Category, HttpUtility.HtmlDecode(category), StringComparison.OrdinalIgnoreCase)));
             }
 
             if (departmentId != null)
             {
-                products.AddRange(ProductRepository.GetAll().Where(product => product.DepartmentId == departmentId));
+                products.AddRange(_productService.GetAll().Where(product => product.DepartmentId == departmentId));
             }
 
             if (id == null && category == null && departmentId == null)
             {
-                products.AddRange(ProductRepository.GetAll().ToList());
+                products.AddRange(_productService.GetAll().ToList());
             }
 
             return Ok(products);
@@ -65,7 +66,7 @@ namespace WebApiSample.Controllers
         [Route("GetAllProducts")]
         public IEnumerable<Product> GetAllProducts()
         {
-            return ProductRepository.GetAll() as List<Product>;
+            return _productService.GetAll();
         }
 
         // GET api/products/GetAllProductsWithExtra
@@ -73,29 +74,15 @@ namespace WebApiSample.Controllers
         [Route("GetAllProductsWithExtra")]
         public IEnumerable<Product> GetAllProductsWithExtra()
         {
-            var randomProdIds = new List<Random> { new Random(), new Random(), new Random() };
-
-            var productsList = ProductRepository.GetAll() as List<Product> ?? new List<Product>();
-
-            var extraProducts = new List<Product>()
-            {
-              new Product {Id = randomProdIds[0].Next(20, 30), Name = "1stNewProduct", Category = "Gaming", Price = 11.00M, DepartmentId = 4 },
-              new Product {Id = randomProdIds[1].Next(40, 50), Name = "2ndNewProduct", Category = "Gaming", Price = 12.00M, DepartmentId = 4 },
-              new Product {Id = randomProdIds[2].Next(60, 70), Name = "3rdNewProduct", Category = "Gaming", Price = 13.00M, DepartmentId = 4 }
-            };
-
-            randomProdIds = null;
-
-            productsList.AddRange(extraProducts);
-
-            return productsList;
+            var products = _productService.AddExtraProducts();
+            return products;
         }
 
         // GET api/products/categories/Gaming
         [Route("categories/{category}")]
         public IEnumerable<Product> GetProductsByCategory(string category)
         {
-            return ProductRepository.GetAll().Where(product =>
+            return _productService.GetAll().Where(product =>
                 string.Equals(product.Category, HttpUtility.HtmlDecode(category), StringComparison.OrdinalIgnoreCase));
         }
 
@@ -110,7 +97,7 @@ namespace WebApiSample.Controllers
 
             try
             {
-                product = ProductRepository.Get(id);
+                product = _productService.GetById(id);
             }
             catch (Exception ex)
             {
@@ -131,7 +118,7 @@ namespace WebApiSample.Controllers
 
             try
             {
-                product = ProductRepository.Get(id);
+                product = _productService.GetById(id);
             }
             catch (Exception ex)
             {
@@ -152,7 +139,7 @@ namespace WebApiSample.Controllers
 
             try
             {
-                product = ProductRepository.Get(id);
+                product = _productService.GetById(id);
             }
             catch (Exception ex)
             {
@@ -173,7 +160,7 @@ namespace WebApiSample.Controllers
 
             try
             {
-                product = ProductRepository.Get(id);
+                product = _productService.GetById(id);
             }
             catch (Exception ex)
             {
@@ -188,8 +175,8 @@ namespace WebApiSample.Controllers
         public HttpResponseMessage PostProduct(Product product)
         {
             if (product == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
-            product = ProductRepository.Add(product);
-            var response = Request.CreateResponse<Product>(HttpStatusCode.Created, product);
+
+            var response = Request.CreateResponse<Product>(HttpStatusCode.Created, _productService.Add(product));
             response.Headers.Location = new Uri(Url.Link("Default", new { id = product.Id }));
             return response;
         }
@@ -202,7 +189,7 @@ namespace WebApiSample.Controllers
 
             try
             {
-                ProductRepository.Update(product);
+                _productService.Update(product);
             }
             catch (Exception ex)
             {
@@ -220,7 +207,7 @@ namespace WebApiSample.Controllers
 
             try
             {
-                ProductRepository.Remove(product.Id);
+                _productService.Remove(product);
             }
             catch (Exception ex)
             {
