@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
+using System.Web.Http.Description;
 using WebApiSample.Models;
 using WebApiSample.Services;
 
@@ -78,9 +79,10 @@ namespace WebApiSample.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetAllProducts")]
-        public IEnumerable<Product> GetAllProducts()
+        [ResponseType(typeof(Product))]
+        public HttpResponseMessage GetAllProducts()
         {
-            return _productService.GetAll();
+            return Request.CreateResponse(HttpStatusCode.OK, _productService.GetAll());
         }
 
         // GET api/products/GetAllProductsWithExtra
@@ -90,10 +92,10 @@ namespace WebApiSample.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetAllProductsWithExtra")]
-        public IEnumerable<Product> GetAllProductsWithExtra()
+        [ResponseType(typeof(Product))]
+        public HttpResponseMessage GetAllProductsWithExtra()
         {
-            var products = _productService.AddExtraProducts();
-            return products;
+            return Request.CreateResponse(HttpStatusCode.OK, _productService.AddExtraProducts());
         }
 
         // GET api/products/categories/Gaming
@@ -104,12 +106,11 @@ namespace WebApiSample.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("categories/{category}")]
-        public IEnumerable<Product> GetProductsByCategory(string category)
+        [ResponseType(typeof(Product))]
+        public HttpResponseMessage GetProductsByCategory(string category)
         {
-            var products = _productService.GetAll().Where(product =>
-                string.Equals(product.Category, category, StringComparison.OrdinalIgnoreCase));
-
-            return products;
+            return Request.CreateResponse(HttpStatusCode.OK, _productService.GetAll().Where(product =>
+                string.Equals(product.Category, category, StringComparison.OrdinalIgnoreCase)));        
         }
 
         // GET api/products/5
@@ -120,22 +121,19 @@ namespace WebApiSample.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("{id:int}")]
-        public IHttpActionResult Get(int id)
+        [ResponseType(typeof(Product))]
+        public HttpResponseMessage Get(int id)
         {
             if (id <= 0) throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest));
 
-            Product product;
-
             try
             {
-                product = _productService.GetById(id);
+                return Request.CreateResponse(HttpStatusCode.OK, _productService.GetById(id));
             }
             catch (Exception ex)
             {
-                return NotFound();
-            }
-
-            return Ok(product);
+                throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
+            }           
         }
 
         //GET api/products/GetProductById/1
@@ -146,22 +144,19 @@ namespace WebApiSample.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("GetProductById/{id:int}", Order = 1)]
-        public IHttpActionResult GetProductById(int id)
+        [ResponseType(typeof(Product))]
+        public HttpResponseMessage GetProductById(int id)
         {
             if (id <= 0) throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest));
 
-            Product product;
-
             try
             {
-                product = _productService.GetById(id);
+                return Request.CreateResponse(HttpStatusCode.OK, _productService.GetById(id));
             }
             catch (Exception ex)
             {
-                return NotFound();
-            }
-
-            return Ok(product);
+                throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
+            }           
         }
 
         //GET api/products/GetProductByIdTwo/1
@@ -171,23 +166,21 @@ namespace WebApiSample.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("GetProductByIdTwo/{id:int}", Order = 2)]
-        public IHttpActionResult GetProductByIdTwo(int id)
+        [ResponseType(typeof(Product))]
+        public HttpResponseMessage GetProductByIdTwo(int id)
         {
             if (id <= 0) throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest));
 
-            Product product;
-
             try
             {
-                product = _productService.GetById(id);
+                return Request.CreateResponse(HttpStatusCode.OK, _productService.GetById(id));
             }
             catch (Exception ex)
             {
-                return NotFound();
-            }
-
-            return Ok(product);
+                throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
+            }     
         }
 
         //GET api/products/GetProductByIdThree/1
@@ -197,23 +190,21 @@ namespace WebApiSample.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet]
+        [ApiExplorerSettings(IgnoreApi = true)]
         [Route("GetProductByIdThree/{id:int}", Order = 3)]
-        public IHttpActionResult GetProductByIdThree(int id)
+        [ResponseType(typeof(Product))]
+        public HttpResponseMessage GetProductByIdThree(int id)
         {
             if (id <= 0) throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.BadRequest));
 
-            Product product;
-
             try
             {
-                product = _productService.GetById(id);
+                return Request.CreateResponse(HttpStatusCode.OK, _productService.GetById(id));
             }
             catch (Exception ex)
             {
-                return NotFound();
-            }
-
-            return Ok(product);
+                throw new HttpResponseException(Request.CreateResponse(HttpStatusCode.NotFound));
+            }     
         }
 
         // POST api/product/5
@@ -223,6 +214,7 @@ namespace WebApiSample.Controllers
         /// <param name="product"></param>
         /// <returns></returns>
         [HttpPost]
+        [ResponseType(typeof(Product))]
         public HttpResponseMessage PostProduct(Product product)
         {
             if (product == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
@@ -240,6 +232,7 @@ namespace WebApiSample.Controllers
         /// <param name="product"></param>
         /// <returns></returns>
         [HttpPut]
+        [ResponseType(typeof(Product))]
         public HttpResponseMessage PutProduct(int id, Product product)
         {
             if (product.Id != id) return Request.CreateResponse(HttpStatusCode.BadRequest);
@@ -263,6 +256,7 @@ namespace WebApiSample.Controllers
         /// <param name="product"></param>
         /// <returns></returns>
         [HttpDelete]
+        [ResponseType(typeof(Product))]
         public HttpResponseMessage Delete(Product product)
         {
             if (product == null) return Request.CreateResponse(HttpStatusCode.BadRequest);
