@@ -15,6 +15,10 @@ namespace WebApiSample.Controllers
     {
         private readonly IProductService _productService;
 
+        /// <summary>
+        /// Constructor injection of ProductService
+        /// </summary>
+        /// <param name="productService"></param>
         public ProductsController(IProductService productService)
         {
             _productService = productService;
@@ -29,10 +33,16 @@ namespace WebApiSample.Controllers
                 api/products?category=Sports&departmentId=2
                 api/products?id=1&category=Sports&departmentId=2
         */
-
+        /// <summary>
+        /// Endpoint provides querystring search abilities for ProductId, ProductCategory, and ProductDepartingId
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="category"></param>
+        /// <param name="departmentId"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("")]
-        public IHttpActionResult RootRoute(int? id = null, string category = null, int? departmentId = null)
+        public IHttpActionResult QueryStringSearch(int? id = null, string category = null, int? departmentId = null)
         {
             var products = new List<Product>();
 
@@ -62,6 +72,10 @@ namespace WebApiSample.Controllers
         }
 
         // GET api/products/GetAllProducts
+        /// <summary>
+        /// Returns an IEnumerable List of Products
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetAllProducts")]
         public IEnumerable<Product> GetAllProducts()
@@ -70,6 +84,10 @@ namespace WebApiSample.Controllers
         }
 
         // GET api/products/GetAllProductsWithExtra
+        /// <summary>
+        /// Returns an IEnumerable List of Products with 3 extra added products
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetAllProductsWithExtra")]
         public IEnumerable<Product> GetAllProductsWithExtra()
@@ -79,11 +97,19 @@ namespace WebApiSample.Controllers
         }
 
         // GET api/products/categories/Gaming
+        /// <summary>
+        /// Returns an IEnumerable List of Products filtered by category provided 
+        /// </summary>
+        /// <param name="category"></param>
+        /// <returns></returns>
+        [HttpGet]
         [Route("categories/{category}")]
         public IEnumerable<Product> GetProductsByCategory(string category)
         {
-            return _productService.GetAll().Where(product =>
-                string.Equals(product.Category, HttpUtility.HtmlDecode(category), StringComparison.OrdinalIgnoreCase));
+            var products = _productService.GetAll().Where(product =>
+                string.Equals(product.Category, category, StringComparison.OrdinalIgnoreCase));
+
+            return products;
         }
 
         // GET api/products/5
@@ -113,6 +139,11 @@ namespace WebApiSample.Controllers
         }
 
         //GET api/products/GetProductById/1
+        /// <summary>
+        /// Returns a given product by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetProductById/{id:int}", Order = 1)]
         public IHttpActionResult GetProductById(int id)
@@ -134,6 +165,11 @@ namespace WebApiSample.Controllers
         }
 
         //GET api/products/GetProductByIdTwo/1
+        /// <summary>
+        /// Returns a given product by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetProductByIdTwo/{id:int}", Order = 2)]
         public IHttpActionResult GetProductByIdTwo(int id)
@@ -155,6 +191,11 @@ namespace WebApiSample.Controllers
         }
 
         //GET api/products/GetProductByIdThree/1
+        /// <summary>
+        /// Returns a given product by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("GetProductByIdThree/{id:int}", Order = 3)]
         public IHttpActionResult GetProductByIdThree(int id)
@@ -176,6 +217,11 @@ namespace WebApiSample.Controllers
         }
 
         // POST api/product/5
+        /// <summary>
+        /// Saves/Posts a given product 
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns></returns>
         [HttpPost]
         public HttpResponseMessage PostProduct(Product product)
         {
@@ -187,6 +233,12 @@ namespace WebApiSample.Controllers
         }
 
         //PUT (UPDATE) api/product/5
+        /// <summary>
+        /// HTTP PUT for a given product by id and product
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="product"></param>
+        /// <returns></returns>
         [HttpPut]
         public HttpResponseMessage PutProduct(int id, Product product)
         {
@@ -205,6 +257,11 @@ namespace WebApiSample.Controllers
         }
 
         // DELETE api/products/5
+        /// <summary>
+        /// HTTP DELETE for a given product
+        /// </summary>
+        /// <param name="product"></param>
+        /// <returns></returns>
         [HttpDelete]
         public HttpResponseMessage Delete(Product product)
         {

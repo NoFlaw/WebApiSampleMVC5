@@ -16,11 +16,8 @@
 // --------------------------------------------------------------------------------------------------------------------
 
 using System.Web;
-using System.Web.Mvc;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
-using StructureMap;
-using WebApiSample.Areas.HelpPage.Controllers;
 using WebApiSample.Models;
 using WebApiSample.Services;
 
@@ -36,10 +33,10 @@ namespace WebApiSample.DependencyResolution {
                 scan => {
                     scan.LookForRegistries();
                     scan.TheCallingAssembly();
-                    scan.AssembliesFromApplicationBaseDirectory(assembly => !assembly.FullName.StartsWith("System.Web"));
                     scan.ExcludeNamespace("System.Web");
                     scan.AddAllTypesOf<IHttpModule>();       
                     scan.WithDefaultConventions();
+                    //scan.AssembliesFromApplicationBaseDirectory(assembly => !assembly.FullName.StartsWith("System.Web"));
                 });
 
             For<IProductService>().Singleton().Use<ProductService>();

@@ -5,6 +5,9 @@ using WebApiSample.Models;
 
 namespace WebApiSample.Services
 {
+    /// <summary>
+    /// Interface for ProductSerice
+    /// </summary>
     public interface IProductService
     {
         List<Product> GetAll();
@@ -15,6 +18,9 @@ namespace WebApiSample.Services
         IEnumerable<Product> AddExtraProducts();
     }
 
+    /// <summary>
+    /// Product Service exposing the Product Repository
+    /// </summary>
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
@@ -46,7 +52,7 @@ namespace WebApiSample.Services
         }
 
         /// <summary>
-        /// Returns a boolean result from adding the Product
+        /// Returns added Product
         /// </summary>
         /// <param name="product"></param>
         /// <returns></returns>
