@@ -87,6 +87,11 @@ namespace WebApiSample.Controllers
         }
 
         // GET api/products/5
+        /// <summary>
+        /// Returns a given Product by id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{id:int}")]
         public IHttpActionResult Get(int id)
