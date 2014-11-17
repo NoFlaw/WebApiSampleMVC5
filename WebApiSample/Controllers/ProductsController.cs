@@ -11,6 +11,9 @@ using WebApiSample.Services;
 
 namespace WebApiSample.Controllers
 {
+    /// <summary>
+    /// ProductsController inheriting from ApiController providing CRUD methods for functions with products
+    /// </summary>
     [RoutePrefix("api/products")]
     public class ProductsController : ApiController
     {
