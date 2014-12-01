@@ -1,0 +1,165 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+    <title>Angular JS - Access localhost api</title>
+    <!-- angular -->
+    <script type='text/javascript' src="https://code.angularjs.org/1.3.4/angular.js"></script>
+    <!-- Needed references for css and responsive design -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+    <style>
+        .table-nonfluid {
+            width: 800px;
+        }
+    </style>
+
+    <script type='text/javascript'>
+        var app = angular.module('AngularToApi', [], ['$httpProvider', function ($httpProvider) {          
+            $httpProvider.defaults.useXDomain = true;
+            delete $httpProvider.defaults.headers.common['X-Requested-With'];
+            $httpProvider.defaults.headers.common['Access-Control-Allow-Origin'] = 'http://localhost:49487';
+            $httpProvider.defaults.headers.common['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+            $httpProvider.defaults.headers.common['Access-Control-Allow-Headers'] = 'Content-Type, X-Requested-With';
+        }]);
+
+        app.controller('AppController', ['$scope', '$http', function ($scope, $http) {
+            $scope.employeeList = false;
+            $scope.employeeForm = true;
+            var displayTable = function () {
+                $http.get("/api/products")
+                    .success(function (data) {
+                        $scope.records = data;
+                        console.log("Success");
+                    })
+                    .error(function (data) { console.log("Error retrieving data via json"); });
+            };
+
+            displayTable();
+
+            $scope.add = function () {
+                $scope.employeeList = true;
+                $scope.employeeForm = false;
+                $scope.employee = {};
+            };
+
+            $scope.cancel = function () {
+                $scope.employeeList = false;
+                $scope.employeeForm = true;
+            };
+
+            $scope.delete = function (record, index) {
+                if (confirm("Sure to Delete?")) {
+                    $http.delete('/api/products/' + record.objectId).success(function (data) {
+                        $scope.records.splice(index, 1);
+                    });
+                }
+            };
+
+            $scope.save = function () {
+                if ($scope.employee.objectId) {
+                    $http.put('/api/products/' + $scope.employee.objectId, $scope.employee).success(function (data) {
+                        $scope.employeeList = false;
+                        $scope.employeeForm = true;
+                        displayTable();
+                    });
+                } else {
+                    $http.post('/api/products/', $scope.employee).success(function (data) {
+                        $scope.employeeList = false;
+                        $scope.employeeForm = true;
+                        displayTable();
+                    });
+                }
+            };
+
+            $scope.edit = function (record) {
+                $http.get("/api/products/" + record.Id)
+                .success(function (data) {
+                    $scope.employee = data;
+                    $scope.employeeList = true;
+                    $scope.employeeForm = false;
+                    console.log("Success");
+                })
+                .error(function (data) { console.log("Error retrieving data via json"); });
+            };
+        }]);
+    </script>
+
+</head>
+
+<body ng-app="AngularToApi" ng-controller="AppController">
+    <div ng-app="AngularToApi" class="container">
+        <div id="employeeList" ng-hide="employeeList">
+            <h2><strong><u><span style="background-color: #FFFF00"> All Products </span></u></strong></h2>
+            <table id="employeeTable" class="table table-hover table-bordered table-condensed table-striped table-nonfluid">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th class="success">DepartmentId</th>
+                        <th class="warning">Category</th>
+                        <th class="danger">Name</th>
+                        <th class="success">Price</th>
+                        <th class="danger">Action</th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="record in records">
+                        <td>{{record.Id}}</td>
+                        <td>{{record.DepartmentId}}</td>
+                        <td>{{record.Category}}</td>
+                        <td>{{record.Name}}</td>
+                        <td>{{record.Price}}</td>
+                        <td>
+                            <a href=''><i class='glyphicon glyphicon-remove' ng-click="delete(record,$index)">Delete</i></a> |
+                            <a href=''><i class='glyphicon glyphicon-edit' ng-click="edit(record)">Edit</i></a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <input class="btn btn-danger" type="button" value="Create" ng-click="add()" />
+        </div>
+
+        <div class="container" id="employeeForm" ng-hide="employeeForm">
+            <form class="form-group" role="form">
+                <h2><strong><u><span style="background-color: #FFFF00"> Add/Edit Product </span></u></strong></h2>
+                <table>
+                    <tbody>
+                        <tr>
+                            <td><label><strong>Id:</strong></label></td>
+                            <td><input type="text" placeholder="Id" id="employeeId" ng-model="employee.Id" /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="employeeName"><strong>Name:</strong></label></td>
+                            <td><input type="text" placeholder="Name" id="employeeName" ng-model="employee.Name" /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="departmentId"><strong>Department:</strong></label></td>
+                            <td><input type="text" placeholder="Department" id="departmentId" ng-model="employee.DepartmentId" /></td>
+                        </tr>
+                        <tr>
+                            <td><label for="category"><strong>Category:</strong></label></td>
+                            <td>
+                                <select id="category" ng-model="employee.Category">
+                                    <option>{{employee.Category}}</option>
+                                    <option value="Trainee">Cool</option>
+                                    <option value="Probation">ReallyCool</option>
+                                    <option value="Confirmed">TotallyRad</option>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><label for="price"><strong>Price:</strong></label></td>
+                            <td><input id="price" type="text" placeholder="Price:" ng-model="employee.Price" /></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <input class="btn btn-danger" type="button" ng-click="cancel()" value="Cancel" />
+                <input class="btn btn-danger" type ="button" ng-click="save(employee)" value="Save" />
+            </form>
+        </div>
+    </div>
+</body>
+</html>

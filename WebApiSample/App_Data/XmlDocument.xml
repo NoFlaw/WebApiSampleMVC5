@@ -481,6 +481,11 @@
             </summary>
             <param name="documentPath">The physical path to XML document.</param>
         </member>
+        <member name="T:WebApiSample.Controllers.ProductsController">
+            <summary>
+            ProductsController inheriting from ApiController providing CRUD methods for functions with products
+            </summary>
+        </member>
         <member name="M:WebApiSample.Controllers.ProductsController.#ctor(WebApiSample.Services.IProductService)">
             <summary>
             Constructor injection of ProductService
