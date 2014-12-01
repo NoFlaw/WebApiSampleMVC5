@@ -20,9 +20,9 @@
         var app = angular.module('AngularToApi', [], ['$httpProvider', function ($httpProvider) {          
             $httpProvider.defaults.useXDomain = true;
             delete $httpProvider.defaults.headers.common['X-Requested-With'];
-            $httpProvider.defaults.headers.common['Access-Control-Allow-Origin'] = 'http://localhost:49487';
-            $httpProvider.defaults.headers.common['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
-            $httpProvider.defaults.headers.common['Access-Control-Allow-Headers'] = 'Content-Type, X-Requested-With';
+            //$httpProvider.defaults.headers.common['Access-Control-Allow-Origin'] = 'http://localhost:49487';
+            //$httpProvider.defaults.headers.common['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS';
+            //$httpProvider.defaults.headers.common['Access-Control-Allow-Headers'] = 'Content-Type, X-Requested-With';
         }]);
 
         app.controller('AppController', ['$scope', '$http', function ($scope, $http) {
@@ -52,7 +52,7 @@
 
             $scope.delete = function (record, index) {
                 if (confirm("Sure to Delete?")) {
-                    $http.delete('/api/products/' + record.objectId).success(function (data) {
+                    $http.delete('/api/products/' + record.toJSON).success(function (data) {
                         $scope.records.splice(index, 1);
                     });
                 }
@@ -60,13 +60,13 @@
 
             $scope.save = function () {
                 if ($scope.employee.objectId) {
-                    $http.put('/api/products/' + $scope.employee.objectId, $scope.employee).success(function (data) {
+                    $http.put('/api/products/' + $scope.employee.Id, $scope.employee).success(function (data) {
                         $scope.employeeList = false;
                         $scope.employeeForm = true;
                         displayTable();
                     });
                 } else {
-                    $http.post('/api/products/', $scope.employee).success(function (data) {
+                    $http.post('/api/products/' + $scope.employee).success(function (data) {
                         $scope.employeeList = false;
                         $scope.employeeForm = true;
                         displayTable();
@@ -113,7 +113,7 @@
                         <td>{{record.Name}}</td>
                         <td>{{record.Price}}</td>
                         <td>
-                            <a href=''><i class='glyphicon glyphicon-remove' ng-click="delete(record,$index)">Delete</i></a> |
+                            <a href=''><i class='glyphicon glyphicon-remove' ng-click="delete(record, record.id)">Delete</i></a> |
                             <a href=''><i class='glyphicon glyphicon-edit' ng-click="edit(record)">Edit</i></a>
                         </td>
                     </tr>
